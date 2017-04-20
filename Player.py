@@ -27,3 +27,9 @@ class Player:
             return cardToPlay
         else:
             return False
+
+    def addPoints(self, points):
+        self.score += 2
+        if self.score>121:
+            self.referee.endGame()
+

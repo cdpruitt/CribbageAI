@@ -8,6 +8,6 @@ def main():
     referee.players = players
 
     # play a game
-    referee.playGame(players[0])
+    referee.playRound(players[0])
 
 main()

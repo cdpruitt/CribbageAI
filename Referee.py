@@ -12,15 +12,17 @@ class Referee:
         self.crib = []
         self.players = []
 
-    def __repr__(self):
-        return "Players: %s" %(self.players)
-
-    def playGame(self,dealer):
+    def playRound(self,dealer):
         self.dealHands()
         self.requestCrib()
         self.flipCard()
         self.playHands()
         self.scoreHands()
+
+    def endGame(self):
+        print "Game over!"
+        for player in self.players:
+            print "%s score: %s" % (player, self.players[0].score)
 
     def dealHands(self):
         print "Dealing hands to players...\n"
@@ -44,6 +46,9 @@ class Referee:
     def flipCard(self):
         print "\nFlipping card..."
         self.flipCard = self.deck.pop(0)
+        if self.flipCard.rank==11:
+            # score His Heels for the dealer
+            self.players[0].addPoints(2)
         print "Flip card: %s" %(self.flipCard)
 
     def playHands(self):
@@ -71,8 +76,10 @@ class Referee:
             card = leader.requestCard()
             if(card):
                 board.append(card)
-            print board
+                score = scoreTheBoard(board)
+                leader.addPoints(score)
 
+            # update who should lead
             if leader==self.players[0]:
                 leader = self.players[1]
             else:
@@ -81,8 +88,13 @@ class Referee:
             if (not self.players[0].hand) & (not self.players[1].hand):
                 break
 
-        return leader
+        # score one for last
+        if leader==self.players[0]:
+            self.players[1].addPoints(1)
+        else:
+            self.players[0].addPoints(1)
 
+        return leader
 
     def scoreHands(self):
         print "\nScoring hands..."
@@ -98,4 +110,5 @@ class Referee:
         #publicGameState["scoreboard"] = self.scoreboard
         return publicGameState
 
-
+    def __repr__(self):
+        return "Players: %s" %(self.players)
