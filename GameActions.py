@@ -61,16 +61,20 @@ def scoreHand(hand,isCrib,flipCard):
 
     return score
 
-# Compute the play score of the most recently played card
+# Count up the total points showing on the board
+def totalTheBoard(board):
+    boardValue = 0
+    for card in board:
+        boardValue += card.value
+    return boardValue
+
+# Compute the play points of the most recently played card
 def scoreTheBoard(board):
     score = 0
     print ""
 
     # check for 31s and 15s
-    boardValue = 0
-    for card in board:
-        boardValue += card.value
-        print boardValue
+    boardValue = totalTheBoard(board)
     if (boardValue==15 or boardValue==31):
         print "31 or 15 for 2"
         score += 2
@@ -90,14 +94,14 @@ def scoreTheBoard(board):
         score += 2
 
     # check for runs
-    #runs = 0
-    #for i, card in enumerate(board):
-    #    if (card.rank-board[0].rank)==i:
-    #        runs += 1
-    #    else:
-    #        break
-    #if runs>3:
-    #    score += runs
+    runs = 0
+    for i, card in enumerate(board):
+        if (card.rank-board[0].rank)==i:
+            runs += 1
+        else:
+            break
+    if runs>3:
+        score += runs
 
     print board
     print score

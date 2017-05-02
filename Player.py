@@ -4,6 +4,7 @@ class Player:
         self.played = []
         self.score = 0
         self.referee = referee
+        self.canPlay = True
 
     def __repr__(self):
         self.orderHand()
@@ -19,14 +20,22 @@ class Player:
         else:
             return False
 
-    def requestCard(self):
-        publicState = self.referee.getPublicState()
-        if(len(self.hand)>0):
-            cardToPlay = self.hand.pop(0)
+    # Determines which card to play
+    def selectCard(self, publicState):
+        # for now, just choose the first possible card in the hand to play
+        for card in self.hand:
+            if publicState["board total"]+card.value<31:
+                return card
+        self.canPlay = False
+        return False
+
+    def requestCard(self, board):
+        publicGameState = self.referee.getPublicState()
+        cardToPlay = self.selectCard(publicGameState)
+        if(cardToPlay):
+            self.hand.remove(cardToPlay)
             self.played.append(cardToPlay)
-            return cardToPlay
-        else:
-            return False
+        return cardToPlay
 
     def addPoints(self, points):
         self.score += 2

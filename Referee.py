@@ -9,6 +9,7 @@ class Referee:
         # initialize the game state
         self.deck = createDeck()
         self.flipCard
+        self.board = []
         self.crib = []
         self.players = []
 
@@ -58,11 +59,10 @@ class Referee:
         leader = self.players[1]
 
         # if anyone has cards left, keep playing
-        while True:
+        while (self.players[0].hand or self.players[1].hand):
             leader = self.playRoundTo31(leader)
-            if (not self.players[0].hand) & (not self.players[1].hand):
-                break
 
+        # put cards back in hands
         for player in self.players:
             player.hand = player.played
 
@@ -70,13 +70,16 @@ class Referee:
 
     def playRoundTo31(self, leader):
         print "Starting round to 31"
-        board = []
 
-        while True:
-            card = leader.requestCard()
+        self.players[0].canPlay = True
+        self.players[1].canPlay = True
+
+        while (self.players[0].canPlay or self.players[1].canPlay):
+            card = leader.requestCard(self.board)
             if(card):
-                board.append(card)
-                score = scoreTheBoard(board)
+                print card
+                self.board.append(card)
+                score = scoreTheBoard(self.board)
                 leader.addPoints(score)
 
             # update who should lead
@@ -85,15 +88,13 @@ class Referee:
             else:
                 leader = self.players[0]
 
-            if (not self.players[0].hand) & (not self.players[1].hand):
-                break
-
         # score one for last
         if leader==self.players[0]:
             self.players[1].addPoints(1)
         else:
             self.players[0].addPoints(1)
-
+        print "scoring 1 for last"
+        self.board = []
         return leader
 
     def scoreHands(self):
@@ -105,9 +106,9 @@ class Referee:
 
     def getPublicState(self):
         publicGameState = {}
-        #publicGameState["cards in play"] = self.cardsInPlay
-        #publicGameState["flip card"] = self.flipCard
-        #publicGameState["scoreboard"] = self.scoreboard
+        publicGameState["cards in play"] = self.board
+        publicGameState["board total"] = totalTheBoard(self.board)
+        publicGameState["flip card"] = self.flipCard
         return publicGameState
 
     def __repr__(self):
