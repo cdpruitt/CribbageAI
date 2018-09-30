@@ -8,10 +8,17 @@ NodeDict = {}
 
 class InfoSet:
     def __init__(self, c, h):
-        self.hand = c
+        self.hand = sorted(c, key=lambda x: x.rank)
         self.history = h
+    #def concise(self):
+    #    hand = "%s %s" %(self.hand[0].rank, self.hand[1].rank)
+
     def __repr__(self):
-        return "Hand = " + str(self.hand) + ", history = " + str(self.history)
+        hand = "%s %s" %(self.hand[0].rank, self.hand[1].rank)
+        history = ""
+        for card in self.history.rounds[-1].board:
+            history += " %s" %(card.rank)
+        return hand + history
 
 class Node:
     def __init__(self, infoSet):
@@ -131,11 +138,20 @@ def train(iterations):
         utility += cfr(cards, History(0), [1, 1])
     print("Average game value: " + str(float(utility)/iterations))
 
-    for n in NodeDict:
-        print NodeDict[n]
+    results = []
+    for key, value in NodeDict.items():
+        if(len(value.infoSet.history.rounds[-1].board)==0):
+            results.append([key, value.getAverageStrategy()])
+
+    results.sort()
+
+    f = open('results.txt', 'w')
+
+    for result in results:
+        f.write('%s %f %f\n' %(result[0], result[1][0], result[1][1]))
 
 def main():
-    iterations = 100000
+    iterations = 10000
     startTime = int(round(time.time()))
     train(iterations)
     endTime = int(round(time.time()))
