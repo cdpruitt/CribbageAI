@@ -10,8 +10,14 @@ class InfoSet:
     def __init__(self, c, h):
         self.hand = sorted(c, key=lambda x: x.rank)
         self.history = h
-    #def concise(self):
-    #    hand = "%s %s" %(self.hand[0].rank, self.hand[1].rank)
+    def concise(self):
+        hand = (self.hand[0].rank, self.hand[1].rank)
+
+        history = []
+        for roundTo31 in self.history.rounds:
+            for card in roundTo31.board:
+                history.append(card.rank)
+        return (hand, tuple(history))
 
     def __repr__(self):
         hand = "%s %s" %(self.hand[0].rank, self.hand[1].rank)
@@ -84,10 +90,10 @@ def cfr(cards, history, realizationWeights):
         
     infoSet = InfoSet(cards[player], history)
 
-    if str(infoSet) not in NodeDict:
-        NodeDict[str(infoSet)] = Node(infoSet)
+    if infoSet.concise() not in NodeDict:
+        NodeDict[infoSet.concise()] = Node(infoSet)
 
-    node = NodeDict[str(infoSet)]
+    node = NodeDict[infoSet.concise()]
 
     strategy = node.getStrategy(cards[player], realizationWeights[player])
 
@@ -145,13 +151,14 @@ def train(iterations):
 
     results.sort()
 
-    f = open('results.txt', 'w')
+    resultsFile = open('results.txt', 'w')
 
     for result in results:
-        f.write('%s %f %f\n' %(result[0], result[1][0], result[1][1]))
+        firstCard, secondCard = result[0][0][0], result[0][0][1]
+        resultsFile.write('%d %d %f %f\n' %(firstCard, secondCard, result[1][0], result[1][1]))
 
 def main():
-    iterations = 10000
+    iterations = 100000
     startTime = int(round(time.time()))
     train(iterations)
     endTime = int(round(time.time()))
